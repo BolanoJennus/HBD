@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday! 🎉</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Circular', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+            overflow-x: hidden;
+            color: white;
+        }
+
+        .section {
+            min-height: 100vh;
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* Hero Section */
+        .hero {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+            background: linear-gradient(180deg, #1DB954 0%, #191414 100%);
+        }
+
+        h1 {
+            font-size: clamp(3rem, 10vw, 6rem);
+            font-weight: 900;
+            margin-bottom: 20px;
+            animation: fadeInUp 1s ease;
+            letter-spacing: -2px;
+        }
+
+        .subtitle {
+            font-size: clamp(1.2rem, 4vw, 2rem);
+            font-weight: 300;
+            opacity: 0.9;
+            animation: fadeInUp 1s ease 0.3s backwards;
+            margin-bottom: 40px;
+        }
+
+        .btn {
+            padding: 16px 48px;
+            font-size: 1rem;
+            font-weight: 700;
+            background: #1DB954;
+            color: #000;
+            border: none;
+            border-radius: 500px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            background: #1ed760;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Music Section */
+        .music-section {
+            background: linear-gradient(180deg, #191414 0%, #121212 100%);
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .music-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .music-header {
+            margin-bottom: 40px;
+        }
+
+        .music-header h2 {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 900;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+
+        .music-header p {
+            font-size: 1.1rem;
+            color: #b3b3b3;
+            font-weight: 400;
+        }
+
+        .player-wrapper {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        @media (min-width: 1024px) {
+            .player-wrapper {
+                grid-template-columns: 400px 1fr;
+            }
+        }
+
+        .player-card {
+            background: #181818;
+            border-radius: 8px;
+            padding: 24px;
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+
+        .album-art {
+            width: 100%;
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #1DB954 0%, #1ed760 50%, #1DB954 100%);
+            border-radius: 4px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+            font-weight: 700;
+            color: rgba(0,0,0,0.3);
+        }
+
+        .album-art::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, transparent 0%, rgba(0,0,0,0.2) 100%);
+        }
+
+        .album-art.playing {
+            animation: subtle-pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes subtle-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .song-info {
+            margin-bottom: 24px;
+        }
+
+        .song-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .song-artist {
+            color: #b3b3b3;
+            font-size: 0.9rem;
+            font-weight: 400;
+        }
+
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: #b3b3b3;
+            margin-top: 8px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #4d4d4d;
+            border-radius: 2px;
+            margin: 8px 0;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress-bar:hover .progress-fill {
+            background: #1DB954;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #fff;
+            width: 0%;
+            border-radius: 2px;
+            transition: width 0.1s linear;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        .control-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: transparent;
+            color: #b3b3b3;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+        }
+
+        .control-btn:hover {
+            color: #fff;
+            transform: scale(1.1);
+        }
+
+        .control-btn:active {
+            transform: scale(0.9);
+        }
+
+        .control-btn.play-btn {
+            width: 48px;
+            height: 48px;
+            background: #fff;
+            color: #000;
+            font-size: 1.2rem;
+        }
+
+        .control-btn.play-btn:hover {
+            transform: scale(1.06);
+        }
+
+        .control-btn.play-btn:active {
+            transform: scale(0.94);
+        }
+
+        /* Playlist */
+        .playlist-section {
+            background: #181818;
+            border-radius: 8px;
+            padding: 24px;
+        }
+
+        .playlist-header {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #fff;
+        }
+
+        .playlist {
+            display: grid;
+            gap: 8px;
+        }
+
+        .playlist-item {
+            background: transparent;
+            padding: 12px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: grid;
+            grid-template-columns: 32px 1fr;
+            align-items: center;
+            gap: 16px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+        }
+
+        .playlist-item:hover {
+            background: #282828;
+        }
+
+        .playlist-item:active {
+            background: #333333;
+            transform: scale(0.98);
+        }
+
+        .playlist-item.active {
+            background: #282828;
+        }
+
+        .playlist-item.active .song-number {
+            color: #1DB954;
+        }
+
+        .song-number {
+            color: #b3b3b3;
+            font-size: 1rem;
+            text-align: center;
+            font-weight: 400;
+        }
+
+        .song-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .song-details {
+            min-width: 0;
+            flex: 1;
+        }
+
+        .song-details-title {
+            font-weight: 400;
+            font-size: 1rem;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .playlist-item.active .song-details-title {
+            color: #1DB954;
+        }
+
+        .song-details-artist {
+            color: #b3b3b3;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .wrapped-btn-container {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+        }
+
+        /* Wrapped Section */
+        .wrapped-section {
+            position: relative;
+        }
+
+        .wrapped-slide {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            text-align: center;
+            background: linear-gradient(180deg, var(--bg-start) 0%, var(--bg-end) 100%);
+        }
+
+        .wrapped-card {
+            max-width: 600px;
+            animation: slideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .wrapped-title {
+            font-size: clamp(2rem, 6vw, 3.5rem);
+            font-weight: 900;
+            margin-bottom: 24px;
+            letter-spacing: -1px;
+            line-height: 1.1;
+        }
+
+        .big-number {
+            font-size: clamp(5rem, 20vw, 12rem);
+            font-weight: 900;
+            margin: 32px 0;
+            line-height: 1;
+            letter-spacing: -4px;
+            background: linear-gradient(135deg, #1DB954 0%, #1ed760 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .wrapped-content {
+            font-size: clamp(1.1rem, 3vw, 1.5rem);
+            line-height: 1.6;
+            color: #fff;
+            font-weight: 400;
+        }
+
+        .wrapped-list {
+            text-align: left;
+            display: inline-block;
+            margin: 24px 0;
+        }
+
+        .wrapped-list-item {
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+            margin: 16px 0;
+            font-weight: 700;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 16px;
+            margin-top: 48px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav-btn {
+            padding: 14px 32px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            background: transparent;
+            color: #fff;
+            border: 2px solid #fff;
+            border-radius: 500px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+        }
+
+        .nav-btn:hover {
+            transform: scale(1.05);
+            background: #fff;
+            color: #000;
+        }
+
+        .nav-btn:active {
+            transform: scale(0.95);
+        }
+
+        .nav-btn.primary {
+            background: #1DB954;
+            border-color: #1DB954;
+            color: #000;
+        }
+
+        .nav-btn.primary:hover {
+            background: #1ed760;
+            border-color: #1ed760;
+        }
+
+        .nav-btn.primary:active {
+            transform: scale(0.95);
+        }
+
+        audio {
+            display: none;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .album-art {
+                font-size: 2.5rem;
+            }
+            
+            .player-card {
+                position: relative;
+                top: 0;
+            }
+
+            .playlist-item {
+                grid-template-columns: 24px 1fr;
+                gap: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <div class="section active" id="heroSection">
+        <div class="hero">
+            <h1>Happy Birthday</h1>
+            <p class="subtitle">Your personalized birthday experience</p>
+            <button class="btn" onclick="showMusic()">Open Your Gift</button>
+        </div>
+    </div>
+
+    <!-- Music Section -->
+    <div class="section music-section" id="musicSection">
+        <div class="music-container">
+            <div class="music-header">
+                <h2>12+14</h2>
+                <p>Your birthday playlist · 26 songs</p>
+            </div>
+
+            <div class="player-wrapper">
+                <div class="player-card">
+                    <div class="album-art" id="albumArt">12+14</div>
+                    
+                    <div class="song-info">
+                        <div class="song-title" id="songTitle">Break from Toronto</div>
+                        <div class="song-artist" id="songArtist">PARTYNEXTDOOR</div>
+                    </div>
+
+                    <div class="progress-bar" onclick="seekTo(event)">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+
+                    <div class="time-display">
+                        <span id="currentTime">0:00</span>
+                        <span id="duration">0:00</span>
+                    </div>
+
+                    <div class="controls">
+                        <button class="control-btn" onclick="prevSong()">⏮️</button>
+                        <button class="control-btn play-btn" onclick="togglePlay()" id="playBtn">▶️</button>
+                        <button class="control-btn" onclick="nextSong()">⏭️</button>
+                    </div>
+                </div>
+
+                <div class="playlist-section">
+                    <div class="playlist-header">Playlist</div>
+                    <div class="playlist" id="playlist"></div>
+                </div>
+            </div>
+
+            <div class="wrapped-btn-container">
+                <button class="btn" onclick="showWrapped()">See Your Birthday Unwrapped</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wrapped Section -->
+    <div class="section" id="wrappedSection">
+        <div id="wrappedContainer"></div>
+    </div>
+
+    <audio id="audioPlayer"></audio>
+
+    <script>
+        const songs = [
+            { title: "Break from Toronto", artist: "PARTYNEXTDOOR", file: "BreakfromToronto.mp3" },
+            { title: "Make It to the Morning", artist: "PARTYNEXTDOOR", file: "MakeIttotheMorning.mp3" },
+            { title: "No Chill", artist: "PARTYNEXTDOOR", file: "NoChill.mp3" },
+            { title: "Her Way", artist: "PARTYNEXTDOOR", file: "HerWay.mp3" },
+            { title: "Wus Good / Curious", artist: "PARTYNEXTDOOR", file: "WusGoodCurious.mp3" },
+            { title: "Relax With Me", artist: "PARTYNEXTDOOR", file: "RelaxWithMe.mp3" },
+            { title: "West District", artist: "PARTYNEXTDOOR", file: "WestDistrict.mp3" },
+            { title: "Right Now", artist: "PARTYNEXTDOOR", file: "RightNow.mp3" },
+            { title: "Options", artist: "PARTYNEXTDOOR", file: "Options.mp3" },
+            { title: "Recognize", artist: "PARTYNEXTDOOR ft. Drake", file: "Recognize.mp3" },
+            { title: "Persian Rugs", artist: "PARTYNEXTDOOR", file: "PersianRugs.mp3" },
+            { title: "Break Me Down", artist: "PARTYNEXTDOOR", file: "BreakMeDown.mp3" },
+            { title: "Not Nice", artist: "PARTYNEXTDOOR", file: "NotNice.mp3" },
+            { title: "Thirsty", artist: "PARTYNEXTDOOR", file: "Thirsty.mp3" },
+            { title: "Preach", artist: "PARTYNEXTDOOR", file: "Preach.mp3" },
+            { title: "Come and See Me", artist: "PARTYNEXTDOOR ft. Drake", file: "ComeandSeeMe.mp3" },
+            { title: "Loyal", artist: "PARTYNEXTDOOR ft. Drake", file: "Loyal.mp3" },
+            { title: "Another Day", artist: "PARTYNEXTDOOR", file: "AnotherDay.mp3" },
+            { title: "Only U", artist: "PARTYNEXTDOOR", file: "OnlyU.mp3" },
+            { title: "The News", artist: "PARTYNEXTDOOR", file: "TheNews.mp3" },
+            { title: "Don't Know How", artist: "PARTYNEXTDOOR", file: "DontKnowHow.mp3" },
+            { title: "Damage", artist: "PARTYNEXTDOOR", file: "Damage.mp3" },
+            { title: "Split Decision", artist: "PARTYNEXTDOOR", file: "SplitDecision.mp3" },
+            { title: "Turn Up", artist: "PARTYNEXTDOOR", file: "TurnUp.mp3" },
+            { title: "Eye On It", artist: "PARTYNEXTDOOR", file: "EyeOnIt.mp3" },
+            { title: "Savage Anthem", artist: "PARTYNEXTDOOR", file: "SavageAnthem.mp3" }
+        ];
+
+        let currentSong = 0;
+        let isPlaying = false;
+        const audio = document.getElementById('audioPlayer');
+
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+        }
+
+        function showMusic() {
+            showSection('musicSection');
+            renderPlaylist();
+        }
+
+        function renderPlaylist() {
+            const playlist = document.getElementById('playlist');
+            playlist.innerHTML = '';
+            songs.forEach((song, index) => {
+                const item = document.createElement('div');
+                item.className = 'playlist-item' + (index === currentSong ? ' active' : '');
+                item.innerHTML = `
+                    <div class="song-number">${index + 1}</div>
+                    <div class="song-content">
+                        <div class="song-details">
+                            <div class="song-details-title">${song.title}</div>
+                            <div class="song-details-artist">${song.artist}</div>
+                        </div>
+                    </div>
+                `;
+                item.onclick = () => playSong(index);
+                playlist.appendChild(item);
+            });
+        }
+
+        function playSong(index) {
+            currentSong = index;
+            const song = songs[currentSong];
+            document.getElementById('songTitle').textContent = song.title;
+            document.getElementById('songArtist').textContent = song.artist;
+            
+            audio.src = song.file;
+            audio.load();
+            
+            renderPlaylist();
+            
+            // Always play when clicking a song
+            audio.play().then(() => {
+                isPlaying = true;
+                document.getElementById('playBtn').textContent = '⏸️';
+                document.getElementById('albumArt').classList.add('playing');
+            }).catch(e => console.log('Playback failed:', e));
+        }
+
+        function togglePlay() {
+            if (isPlaying) {
+                audio.pause();
+                isPlaying = false;
+                document.getElementById('playBtn').textContent = '▶️';
+                document.getElementById('albumArt').classList.remove('playing');
+            } else {
+                audio.play().then(() => {
+                    isPlaying = true;
+                    document.getElementById('playBtn').textContent = '⏸️';
+                    document.getElementById('albumArt').classList.add('playing');
+                }).catch(e => console.log('Playback failed:', e));
+            }
+        }
+
+        function seekTo(event) {
+            const bar = event.currentTarget;
+            const rect = bar.getBoundingClientRect();
+            const percent = (event.clientX - rect.left) / rect.width;
+            audio.currentTime = percent * audio.duration;
+        }
+
+        function nextSong() {
+            currentSong = (currentSong + 1) % songs.length;
+            playSong(currentSong);
+        }
+
+        function prevSong() {
+            currentSong = (currentSong - 1 + songs.length) % songs.length;
+            playSong(currentSong);
+        }
+
+        // Audio event listeners
+        audio.addEventListener('timeupdate', () => {
+            const percent = (audio.currentTime / audio.duration) * 100;
+            document.getElementById('progressFill').style.width = percent + '%';
+            document.getElementById('currentTime').textContent = formatTime(audio.currentTime);
+        });
+
+        audio.addEventListener('loadedmetadata', () => {
+            document.getElementById('duration').textContent = formatTime(audio.duration);
+        });
+
+        audio.addEventListener('ended', () => {
+            nextSong();
+        });
+
+        const wrappedSlides = [
+            {
+                title: "Your Birthday Unwrapped",
+                content: "A year of moments, wrapped up just for you",
+                bgStart: "#1DB954",
+                bgEnd: "#191414"
+            },
+            {
+                title: "365 Days",
+                content: "Another amazing year of being you",
+                number: "365",
+                bgStart: "#8E44AD",
+                bgEnd: "#3498DB"
+            },
+            {
+                title: "26 Songs",
+                content: "Specially curated in your 12+14 playlist",
+                number: "26",
+                bgStart: "#E74C3C",
+                bgEnd: "#C0392B"
+            },
+            {
+                title: "Your Top Artist",
+                content: "PARTYNEXTDOOR dominated your birthday playlist",
+                bgStart: "#F39C12",
+                bgEnd: "#E67E22"
+            },
+            {
+                title: "Infinite Memories",
+                content: "Every moment with you is unforgettable",
+                number: "∞",
+                bgStart: "#2ECC71",
+                bgEnd: "#27AE60"
+            },
+            {
+                title: "100 Percent",
+                content: "Perfectly wonderful just the way you are",
+                number: "100",
+                bgStart: "#9B59B6",
+                bgEnd: "#8E44AD"
+            },
+            {
+                title: "Your Essence",
+                content: "",
+                list: ["Incredible Energy", "Amazing Presence", "Beautiful Soul", "One of a Kind"],
+                bgStart: "#E91E63",
+                bgEnd: "#C2185B"
+            },
+            {
+                title: "Happy Birthday",
+                content: "Here's to another year of wonderful moments together",
+                bgStart: "#FF6B6B",
+                bgEnd: "#4ECDC4"
+            }
+        ];
+
+        let currentSlide = 0;
+
+        function showWrapped() {
+            showSection('wrappedSection');
+            currentSlide = 0;
+            renderWrappedSlide();
+        }
+
+        function renderWrappedSlide() {
+            const slide = wrappedSlides[currentSlide];
+            const container = document.getElementById('wrappedContainer');
+            
+            let listHTML = '';
+            if (slide.list) {
+                listHTML = '<div class="wrapped-list">';
+                slide.list.forEach(item => {
+                    listHTML += `<div class="wrapped-list-item">${item}</div>`;
+                });
+                listHTML += '</div>';
+            }
+            
+            container.innerHTML = `
+                <div class="wrapped-slide" style="--bg-start: ${slide.bgStart}; --bg-end: ${slide.bgEnd};">
+                    <div class="wrapped-card">
+                        <h2 class="wrapped-title">${slide.title}</h2>
+                        ${slide.number ? `<div class="big-number">${slide.number}</div>` : ''}
+                        ${listHTML}
+                        ${slide.content ? `<p class="wrapped-content">${slide.content}</p>` : ''}
+                    </div>
+                    <div class="nav-buttons">
+                        ${currentSlide > 0 ? '<button class="nav-btn" onclick="prevSlide()">← Previous</button>' : ''}
+                        ${currentSlide < wrappedSlides.length - 1 ? 
+                            '<button class="nav-btn primary" onclick="nextSlide()">Next →</button>' : 
+                            '<button class="nav-btn primary" onclick="restart()">Start Over</button>'}
+                    </div>
+                </div>
+            `;
+        }
+
+        function nextSlide() {
+            if (currentSlide < wrappedSlides.length - 1) {
+                currentSlide++;
+                renderWrappedSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                renderWrappedSlide();
+            }
+        }
+
+        function restart() {
+            audio.pause();
+            isPlaying = false;
+            currentSong = 0;
+            document.getElementById('playBtn').textContent = '▶️';
+            document.getElementById('albumArt').classList.remove('playing');
+            showSection('heroSection');
+            playSong(0);
+        }
+
+        // Initialize
+        playSong(0);
+        renderPlaylist();
+    </script>
+</body>
+</html>
